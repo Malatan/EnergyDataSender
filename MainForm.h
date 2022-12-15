@@ -49,8 +49,7 @@ namespace EnergyDataSender {
 
 	protected:
 	private: System::Int32 timer = 10;
-	private: System::Int32 step = 1;
-	private: System::Int32 nSource = 400;
+	private: System::Int32 step = 400;
 	private: System::Int32 countDown = 10;
 	private: System::Int32 recordsLoaded = 0;
 	private: System::Int32 recordsSent = 0;
@@ -80,10 +79,10 @@ namespace EnergyDataSender {
 	private: System::Windows::Forms::TextBox^ host4TextBox;
 	private: System::Windows::Forms::TextBox^ host5TextBox;
 	private: System::Windows::Forms::OpenFileDialog^ openFileDialog1;
-	private: System::Windows::Forms::TextBox^ nSourceTextBox;
-	private: System::Windows::Forms::Label^ nSourceValuelbl;
-	private: System::Windows::Forms::Label^ nSourcelbl;
-	private: System::Windows::Forms::Button^ setNSourceBtn;
+
+
+
+
 	private: System::Windows::Forms::TextBox^ stepTextBox;
 	private: System::Windows::Forms::Label^ stepValuelbl;
 	private: System::Windows::Forms::Label^ steplbl;
@@ -97,20 +96,20 @@ namespace EnergyDataSender {
 			   int portno = Convert::ToInt32(this->host5TextBox->Text);
 			   this->statusMsglbl->Text = "Connecting to " + host_address + ":" + portno;
 
-			   System::Diagnostics::Debug::WriteLine("Sending single record from " + this->nSource 
-				   + " sources with step of " + this->step);
+			   System::Diagnostics::Debug::WriteLine("Sending " + this->step + " record");
 
 			   String^ send_msg;
-			   int records_to_send = this->nSource * this->step;
+			   int records_to_send = this->step;
 			   Boolean clear_records = false;
 			   if (this->records->Count < records_to_send) {
 				   records_to_send = this->records->Count;
 				   clear_records = true;
 			   }
 			   for (int i = 0; i < records_to_send; i++) {
-				   send_msg += this->records[i] + "\n";
+				   send_msg += this->records[i] + ";";
 			   }
 			   
+			   System::Diagnostics::Debug::WriteLine(send_msg->Length);
 			   std::string unmanaged_send_msg = msclr::interop::marshal_as<std::string>(send_msg);
 			   WSADATA wsaData;
 			   SOCKET ConnectSocket = INVALID_SOCKET;
@@ -206,7 +205,7 @@ namespace EnergyDataSender {
 			   closesocket(ConnectSocket);
 			   WSACleanup();
 			   if (clear_records) {
-				   this->records->Clear();
+				   this->records = gcnew List<String^>();
 			   }
 			   else {
 				   this->records->RemoveRange(0, records_to_send);
@@ -221,7 +220,6 @@ namespace EnergyDataSender {
 			   this->recordsLeftValuelbl->Text = this->records->Count + "";
 			   this->recordsSentValuelbl->Text = this->recordsSent + "";
 			   this->timerValuelbl->Text = this->timer + " seconds";
-			   this->nSourceValuelbl->Text = this->nSource + "";
 			   this->stepValuelbl->Text = this->step + "";
 		   }
 
@@ -254,10 +252,6 @@ namespace EnergyDataSender {
 			   this->host4TextBox = (gcnew System::Windows::Forms::TextBox());
 			   this->host5TextBox = (gcnew System::Windows::Forms::TextBox());
 			   this->openFileDialog1 = (gcnew System::Windows::Forms::OpenFileDialog());
-			   this->nSourceTextBox = (gcnew System::Windows::Forms::TextBox());
-			   this->nSourceValuelbl = (gcnew System::Windows::Forms::Label());
-			   this->nSourcelbl = (gcnew System::Windows::Forms::Label());
-			   this->setNSourceBtn = (gcnew System::Windows::Forms::Button());
 			   this->stepTextBox = (gcnew System::Windows::Forms::TextBox());
 			   this->stepValuelbl = (gcnew System::Windows::Forms::Label());
 			   this->steplbl = (gcnew System::Windows::Forms::Label());
@@ -303,7 +297,7 @@ namespace EnergyDataSender {
 			   // 
 			   // countdownBar
 			   // 
-			   this->countdownBar->Location = System::Drawing::Point(14, 281);
+			   this->countdownBar->Location = System::Drawing::Point(14, 246);
 			   this->countdownBar->Maximum = 10;
 			   this->countdownBar->Name = L"countdownBar";
 			   this->countdownBar->Size = System::Drawing::Size(260, 23);
@@ -313,7 +307,7 @@ namespace EnergyDataSender {
 			   // statusMsglbl
 			   // 
 			   this->statusMsglbl->AutoSize = true;
-			   this->statusMsglbl->Location = System::Drawing::Point(12, 307);
+			   this->statusMsglbl->Location = System::Drawing::Point(12, 272);
 			   this->statusMsglbl->Name = L"statusMsglbl";
 			   this->statusMsglbl->Size = System::Drawing::Size(47, 12);
 			   this->statusMsglbl->TabIndex = 5;
@@ -321,7 +315,7 @@ namespace EnergyDataSender {
 			   // 
 			   // startBtn
 			   // 
-			   this->startBtn->Location = System::Drawing::Point(14, 218);
+			   this->startBtn->Location = System::Drawing::Point(14, 183);
 			   this->startBtn->Name = L"startBtn";
 			   this->startBtn->Size = System::Drawing::Size(260, 30);
 			   this->startBtn->TabIndex = 6;
@@ -377,7 +371,7 @@ namespace EnergyDataSender {
 			   // 
 			   // loadCSVBtn
 			   // 
-			   this->loadCSVBtn->Location = System::Drawing::Point(14, 189);
+			   this->loadCSVBtn->Location = System::Drawing::Point(14, 154);
 			   this->loadCSVBtn->Name = L"loadCSVBtn";
 			   this->loadCSVBtn->Size = System::Drawing::Size(120, 23);
 			   this->loadCSVBtn->TabIndex = 13;
@@ -387,7 +381,7 @@ namespace EnergyDataSender {
 			   // 
 			   // resetRecordsBtn
 			   // 
-			   this->resetRecordsBtn->Location = System::Drawing::Point(154, 189);
+			   this->resetRecordsBtn->Location = System::Drawing::Point(154, 154);
 			   this->resetRecordsBtn->Name = L"resetRecordsBtn";
 			   this->resetRecordsBtn->Size = System::Drawing::Size(120, 23);
 			   this->resetRecordsBtn->TabIndex = 15;
@@ -413,7 +407,7 @@ namespace EnergyDataSender {
 			   // 
 			   // host1TextBox
 			   // 
-			   this->host1TextBox->Location = System::Drawing::Point(16, 254);
+			   this->host1TextBox->Location = System::Drawing::Point(16, 219);
 			   this->host1TextBox->MaxLength = 3;
 			   this->host1TextBox->Name = L"host1TextBox";
 			   this->host1TextBox->Size = System::Drawing::Size(40, 21);
@@ -423,7 +417,7 @@ namespace EnergyDataSender {
 			   // 
 			   // host2TextBox
 			   // 
-			   this->host2TextBox->Location = System::Drawing::Point(62, 254);
+			   this->host2TextBox->Location = System::Drawing::Point(62, 219);
 			   this->host2TextBox->MaxLength = 3;
 			   this->host2TextBox->Name = L"host2TextBox";
 			   this->host2TextBox->Size = System::Drawing::Size(40, 21);
@@ -433,7 +427,7 @@ namespace EnergyDataSender {
 			   // 
 			   // host3TextBox
 			   // 
-			   this->host3TextBox->Location = System::Drawing::Point(108, 254);
+			   this->host3TextBox->Location = System::Drawing::Point(108, 219);
 			   this->host3TextBox->MaxLength = 3;
 			   this->host3TextBox->Name = L"host3TextBox";
 			   this->host3TextBox->Size = System::Drawing::Size(40, 21);
@@ -443,7 +437,7 @@ namespace EnergyDataSender {
 			   // 
 			   // host4TextBox
 			   // 
-			   this->host4TextBox->Location = System::Drawing::Point(154, 254);
+			   this->host4TextBox->Location = System::Drawing::Point(154, 219);
 			   this->host4TextBox->MaxLength = 3;
 			   this->host4TextBox->Name = L"host4TextBox";
 			   this->host4TextBox->Size = System::Drawing::Size(40, 21);
@@ -453,7 +447,7 @@ namespace EnergyDataSender {
 			   // 
 			   // host5TextBox
 			   // 
-			   this->host5TextBox->Location = System::Drawing::Point(213, 254);
+			   this->host5TextBox->Location = System::Drawing::Point(213, 219);
 			   this->host5TextBox->MaxLength = 5;
 			   this->host5TextBox->Name = L"host5TextBox";
 			   this->host5TextBox->Size = System::Drawing::Size(61, 21);
@@ -469,45 +463,9 @@ namespace EnergyDataSender {
 			   this->openFileDialog1->RestoreDirectory = true;
 			   this->openFileDialog1->ShowHelp = true;
 			   // 
-			   // nSourceTextBox
-			   // 
-			   this->nSourceTextBox->Location = System::Drawing::Point(14, 123);
-			   this->nSourceTextBox->Name = L"nSourceTextBox";
-			   this->nSourceTextBox->Size = System::Drawing::Size(168, 21);
-			   this->nSourceTextBox->TabIndex = 36;
-			   this->nSourceTextBox->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &MainForm::nSourceTextBox_KeyPress);
-			   // 
-			   // nSourceValuelbl
-			   // 
-			   this->nSourceValuelbl->AutoSize = true;
-			   this->nSourceValuelbl->Location = System::Drawing::Point(77, 109);
-			   this->nSourceValuelbl->Name = L"nSourceValuelbl";
-			   this->nSourceValuelbl->Size = System::Drawing::Size(23, 12);
-			   this->nSourceValuelbl->TabIndex = 35;
-			   this->nSourceValuelbl->Text = L"400";
-			   // 
-			   // nSourcelbl
-			   // 
-			   this->nSourcelbl->AutoSize = true;
-			   this->nSourcelbl->Location = System::Drawing::Point(12, 108);
-			   this->nSourcelbl->Name = L"nSourcelbl";
-			   this->nSourcelbl->Size = System::Drawing::Size(59, 12);
-			   this->nSourcelbl->TabIndex = 34;
-			   this->nSourcelbl->Text = L"N.source:";
-			   // 
-			   // setNSourceBtn
-			   // 
-			   this->setNSourceBtn->Location = System::Drawing::Point(188, 117);
-			   this->setNSourceBtn->Name = L"setNSourceBtn";
-			   this->setNSourceBtn->Size = System::Drawing::Size(86, 30);
-			   this->setNSourceBtn->TabIndex = 33;
-			   this->setNSourceBtn->Text = L"Change";
-			   this->setNSourceBtn->UseVisualStyleBackColor = true;
-			   this->setNSourceBtn->Click += gcnew System::EventHandler(this, &MainForm::setNSourceBtn_Click);
-			   // 
 			   // stepTextBox
 			   // 
-			   this->stepTextBox->Location = System::Drawing::Point(14, 159);
+			   this->stepTextBox->Location = System::Drawing::Point(14, 124);
 			   this->stepTextBox->Name = L"stepTextBox";
 			   this->stepTextBox->Size = System::Drawing::Size(168, 21);
 			   this->stepTextBox->TabIndex = 40;
@@ -516,16 +474,16 @@ namespace EnergyDataSender {
 			   // stepValuelbl
 			   // 
 			   this->stepValuelbl->AutoSize = true;
-			   this->stepValuelbl->Location = System::Drawing::Point(53, 144);
+			   this->stepValuelbl->Location = System::Drawing::Point(53, 109);
 			   this->stepValuelbl->Name = L"stepValuelbl";
-			   this->stepValuelbl->Size = System::Drawing::Size(11, 12);
+			   this->stepValuelbl->Size = System::Drawing::Size(23, 12);
 			   this->stepValuelbl->TabIndex = 39;
-			   this->stepValuelbl->Text = L"1";
+			   this->stepValuelbl->Text = L"400";
 			   // 
 			   // steplbl
 			   // 
 			   this->steplbl->AutoSize = true;
-			   this->steplbl->Location = System::Drawing::Point(12, 144);
+			   this->steplbl->Location = System::Drawing::Point(12, 109);
 			   this->steplbl->Name = L"steplbl";
 			   this->steplbl->Size = System::Drawing::Size(35, 12);
 			   this->steplbl->TabIndex = 38;
@@ -533,7 +491,7 @@ namespace EnergyDataSender {
 			   // 
 			   // setStepBtn
 			   // 
-			   this->setStepBtn->Location = System::Drawing::Point(188, 153);
+			   this->setStepBtn->Location = System::Drawing::Point(188, 118);
 			   this->setStepBtn->Name = L"setStepBtn";
 			   this->setStepBtn->Size = System::Drawing::Size(86, 30);
 			   this->setStepBtn->TabIndex = 37;
@@ -544,7 +502,7 @@ namespace EnergyDataSender {
 			   // errorMsglbl
 			   // 
 			   this->errorMsglbl->AutoSize = true;
-			   this->errorMsglbl->Location = System::Drawing::Point(12, 320);
+			   this->errorMsglbl->Location = System::Drawing::Point(12, 285);
 			   this->errorMsglbl->Name = L"errorMsglbl";
 			   this->errorMsglbl->Size = System::Drawing::Size(0, 12);
 			   this->errorMsglbl->TabIndex = 41;
@@ -553,16 +511,12 @@ namespace EnergyDataSender {
 			   // 
 			   this->AutoScaleDimensions = System::Drawing::SizeF(6, 12);
 			   this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-			   this->ClientSize = System::Drawing::Size(284, 341);
+			   this->ClientSize = System::Drawing::Size(284, 291);
 			   this->Controls->Add(this->errorMsglbl);
 			   this->Controls->Add(this->stepTextBox);
 			   this->Controls->Add(this->stepValuelbl);
 			   this->Controls->Add(this->steplbl);
 			   this->Controls->Add(this->setStepBtn);
-			   this->Controls->Add(this->nSourceTextBox);
-			   this->Controls->Add(this->nSourceValuelbl);
-			   this->Controls->Add(this->nSourcelbl);
-			   this->Controls->Add(this->setNSourceBtn);
 			   this->Controls->Add(this->host5TextBox);
 			   this->Controls->Add(this->host4TextBox);
 			   this->Controls->Add(this->host3TextBox);
@@ -584,7 +538,7 @@ namespace EnergyDataSender {
 			   this->Controls->Add(this->recordsCountValuelbl);
 			   this->Controls->Add(this->recordsCountlbl);
 			   this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::FixedToolWindow;
-			   this->Name = L"EnergyDataSender";
+			   this->Name = L"MainForm";
 			   this->StartPosition = System::Windows::Forms::FormStartPosition::CenterScreen;
 			   this->Text = L"EnergyDataSender";
 			   this->Load += gcnew System::EventHandler(this, &MainForm::MyForm_Load);
@@ -626,18 +580,6 @@ namespace EnergyDataSender {
 		else {
 			MessageBox::Show("Invalid input", "Message");
 		}
-	}
-	private: System::Void setNSourceBtn_Click(System::Object^ sender, System::EventArgs^ e) {
-		if (this->nSourceTextBox->Text != "") {
-			this->nSource = Convert::ToInt32(this->nSourceTextBox->Text);
-			this->updateValueLbls();
-			this->nSourceTextBox->Text = "";
-			MessageBox::Show("Set the n. source to " + this->nSource, "Message");
-		}
-		else {
-			MessageBox::Show("Invalid input", "Message");
-		}
-
 	}
 	private: System::Void setStepBtn_Click(System::Object^ sender, System::EventArgs^ e) {
 		if (this->stepTextBox->Text != "") {
@@ -725,7 +667,7 @@ namespace EnergyDataSender {
 			this->countdownBar->Value = 0;
 			this->countDown = this->timer;
 			if (this->records->Count > 0) {
-				System::Diagnostics::Debug::WriteLine("Sending " + this->nSource * this->step + " records");
+				System::Diagnostics::Debug::WriteLine("Sending " + this->step + " records");
 				this->sendData();
 				this->updateValueLbls();
 			}
@@ -748,7 +690,6 @@ namespace EnergyDataSender {
 			String^ file_path = openFileDialog1->FileName;
 			String^ file_name = System::IO::Path::GetFileName(file_path);
 			this->statusMsglbl->Text = "Loading " + file_name;
-			MessageBox::Show(openFileDialog1->FileName, "Path:");
 			std::string unmanaged_file_path = msclr::interop::marshal_as<std::string>(openFileDialog1->FileName);
 			std::ifstream csv_data(unmanaged_file_path, std::ios::in);
 			std::string line;
@@ -767,7 +708,7 @@ namespace EnergyDataSender {
 		}
 	}
 	private: System::Void resetRecordsBtn_Click(System::Object^ sender, System::EventArgs^ e) {
-		this->records->Clear();
+		this->records = gcnew List<String^>();
 		this->updateValueLbls();
 		MessageBox::Show("Cleared all records", "Message");
 		System::Diagnostics::Debug::WriteLine("Records count: " + this->records->Count);
